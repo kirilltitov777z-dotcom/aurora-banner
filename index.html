@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070810">
+<title>—</title>
+<style>
+  :root{
+    --bg:#070810;
+    --violet:#7c3aed;
+    --cyan:#06b6d4;
+    --pink:#ec4899;
+    --indigo:#4338ca;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:var(--bg)}
+  body{
+    font-family:system-ui,-apple-system,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+
+  .stage{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    isolation:isolate;
+    background:
+      radial-gradient(140% 120% at 50% 12%, #141838 0%, #0a0b18 45%, #070810 78%);
+  }
+
+  /* Аура: мягкие цветовые пятна, которые медленно дрейфуют */
+  .aurora{
+    position:absolute;
+    inset:-25%;
+    filter:blur(60px);
+    opacity:.9;
+    will-change:transform;
+    transform:translate3d(0,0,0);
+  }
+  .blob{
+    position:absolute;
+    border-radius:50%;
+    mix-blend-mode:screen;
+    will-change:transform;
+  }
+  .b1{
+    width:55vmax;height:55vmax;left:-8%;top:-14%;
+    background:radial-gradient(circle at 38% 38%, var(--violet), transparent 68%);
+    animation:drift1 24s ease-in-out infinite alternate;
+  }
+  .b2{
+    width:48vmax;height:48vmax;right:-10%;top:2%;
+    background:radial-gradient(circle at 55% 45%, var(--cyan), transparent 66%);
+    animation:drift2 29s ease-in-out infinite alternate;
+  }
+  .b3{
+    width:52vmax;height:52vmax;left:12%;bottom:-22%;
+    background:radial-gradient(circle at 50% 40%, var(--pink), transparent 68%);
+    animation:drift3 33s ease-in-out infinite alternate;
+  }
+  .b4{
+    width:40vmax;height:40vmax;right:6%;bottom:-14%;
+    background:radial-gradient(circle at 45% 55%, var(--indigo), transparent 70%);
+    animation:drift4 27s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift1{ from{transform:translate3d(-6%,-4%,0) scale(1)} to{transform:translate3d(14%,10%,0) scale(1.25)} }
+  @keyframes drift2{ from{transform:translate3d(8%,-6%,0) scale(1.15)} to{transform:translate3d(-12%,14%,0) scale(.95)} }
+  @keyframes drift3{ from{transform:translate3d(-10%,8%,0) scale(1)} to{transform:translate3d(16%,-10%,0) scale(1.2)} }
+  @keyframes drift4{ from{transform:translate3d(6%,10%,0) scale(1.1)} to{transform:translate3d(-14%,-8%,0) scale(.92)} }
+
+  /* Частицы */
+  canvas#particles{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    opacity:.9;
+  }
+
+  /* Световой блик, пробегающий по баннеру */
+  .sheen{
+    position:absolute;
+    top:-40%;left:-60%;
+    width:45%;height:180%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.09), transparent);
+    transform:rotate(18deg);
+    mix-blend-mode:soft-light;
+    animation:sheen 11s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes sheen{
+    0%,15%{transform:translateX(0) rotate(18deg)}
+    60%,100%{transform:translateX(360%) rotate(18deg)}
+  }
+
+  /* Зерно */
+  .grain{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.07;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+  }
+
+  /* Затемнение по краям */
+  .vignette{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:radial-gradient(115% 95% at 50% 45%, transparent 42%, rgba(0,0,0,.55) 100%);
+  }
+
+  /* Тонкая рамка — намёк на «баннер» */
+  .frame{
+    position:absolute;
+    inset:clamp(14px, 3.2vmin, 42px);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:2px;
+    pointer-events:none;
+  }
+  .frame::before,.frame::after{
+    content:"";
+    position:absolute;
+    width:26px;height:26px;
+    border:1px solid rgba(255,255,255,.35);
+  }
+  .frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+  .frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+
+  @media (prefers-reduced-motion: reduce){
+    .blob,.sheen{animation:none}
+  }
+  @media (max-width:600px){
+    .aurora{filter:blur(45px)}
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="aurora" id="aurora">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+      <div class="blob b4"></div>
+    </div>
+    <canvas id="particles"></canvas>
+    <div class="sheen"></div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+    <div class="frame"></div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  const aurora = document.getElementById('aurora');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let w = 0, h = 0, dpr = 1;
+  let dots = [];
+  let px = 0, py = 0, tx = 0, ty = 0;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const count = Math.min(90, Math.round((w * h) / 16000));
+    dots = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.6 + 0.4,
+      a: Math.random() * 0.5 + 0.25
+    }));
+  }
+
+  function step() {
+    ctx.clearRect(0, 0, w, h);
+
+    // лёгкий параллакс ауры за указателем/пальцем
+    px += (tx - px) * 0.04;
+    py += (ty - py) * 0.04;
+    aurora.style.transform = `translate3d(${px * 26}px, ${py * 26}px, 0)`;
+
+    const maxD = Math.min(w, h) * 0.16;
+
+    for (const d of dots) {
+      if (!reduce) {
+        d.x += d.vx;
+        d.y += d.vy;
+        if (d.x < -10) d.x = w + 10;
+        if (d.x > w + 10) d.x = -10;
+        if (d.y < -10) d.y = h + 10;
+        if (d.y > h + 10) d.y = -10;
+      }
+
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(190,215,255,${d.a})`;
+      ctx.fill();
+    }
+
+    // тонкие связи между ближайшими точками
+    for (let i = 0; i < dots.length; i++) {
+      for (let j = i + 1; j < dots.length; j++) {
+        const dx = dots[i].x - dots[j].x;
+        const dy = dots[i].y - dots[j].y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < maxD) {
+          ctx.beginPath();
+          ctx.moveTo(dots[i].x, dots[i].y);
+          ctx.lineTo(dots[j].x, dots[j].y);
+          ctx.strokeStyle = `rgba(140,170,255,${(1 - dist / maxD) * 0.14})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  function point(e) {
+    const p = e.touches ? e.touches[0] : e;
+    tx = (p.clientX / window.innerWidth - 0.5) * 2;
+    ty = (p.clientY / window.innerHeight - 0.5) * 2;
+  }
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('pointermove', point, { passive: true });
+  window.addEventListener('touchmove', point, { passive: true });
+
+  resize();
+  requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>
